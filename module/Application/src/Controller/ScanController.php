@@ -3,7 +3,6 @@
 namespace Application\Controller;
 
 use Application\Service\ScanAnalysisService;
-use App\Service\ScanParser;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 
@@ -19,34 +18,50 @@ class ScanController extends AbstractActionController
         return new JsonModel([
             'status' => 'ok',
             'service' => 'eve-moon-scan-analyzer',
-            'version' => '0.1.0',
+            'version' => '0.2.0',
             'features' => [
                 'moon_scan_parsing',
-                'market_value_estimation',
-                'scan_export',
+                'database_persistence',
+                'material_tracking',
             ],
         ]);
     }
 
     public function uploadAction(): JsonModel
     {
-        $payload = $this->getRequest()->getContent();
-        $data = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
+        try {
+            $payload = $this->getRequest()->getContent();
+            $data = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
 
-        $scanText = (string) ($data['scan_data'] ?? '');
-        if ($scanText === '') {
+            $scanText = (string) ($data['scan_data'] ?? '');
+            if ($scanText === '') {
+                return new JsonModel([
+                    'error' => 'scan_data is required',
+                    'error_code' => 'missing_scan_data',
+                ], 400);
+            }
+
+            $submittedBy = $data['submitted_by'] ?? null;
+            $result = $this->scanAnalysisService->analyze($scanText, $submittedBy);
+
             return new JsonModel([
-                'error' => 'scan_data is required',
-            ]); 
+                'status' => 'success',
+                'scan_id' => $result['scan_id'],
+                'moon_count' => $result['moon_count'],
+                'material_count' => $result['material_count'],
+                'moons' => $result['moons'],
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return new JsonModel([
+                'error' => $e->getMessage(),
+                'error_code' => 'invalid_scan_format',
+            ], 400);
+        } catch (\Exception $e) {
+            return new JsonModel([
+                'error' => 'Internal server error',
+                'error_code' => 'server_error',
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        $result = $this->scanAnalysisService->analyze($scanText);
-
-        return new JsonModel([
-            'status' => 'accepted',
-            'moon_count' => $result['moon_count'],
-            'material_count' => $result['material_count'],
-            'moons' => $result['moons'],
-        ]);
     }
 }

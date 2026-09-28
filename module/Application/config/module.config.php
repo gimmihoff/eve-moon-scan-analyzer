@@ -16,7 +16,7 @@ return [
             'api' => [
                 'type' => 'Segment',
                 'options' => [
-                    'route' => '/api[/[:action[/]]]?',
+                    'route' => '/api[/:action[/]]',
                     'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                     ],
@@ -37,6 +37,21 @@ return [
     'service_manager' => [
         'factories' => [
             \Application\Service\ScanAnalysisService::class => \Application\Service\Factory\ScanAnalysisServiceFactory::class,
+            \App\Service\ScanPersistenceService::class => \App\Service\Factory\ScanPersistenceServiceFactory::class,
+        ],
+    ],
+    'doctrine' => [
+        'driver' => [
+            'app_driver' => [
+                'class' => \Doctrine\ORM\Mapping\Driver\AttributeDriver::class,
+                'cache' => 'array',
+                'paths' => [__DIR__ . '/../../src/Application/Entity'],
+            ],
+            'orm_default' => [
+                'drivers' => [
+                    'App\\Entity' => 'app_driver',
+                ],
+            ],
         ],
     ],
     'view_manager' => [
