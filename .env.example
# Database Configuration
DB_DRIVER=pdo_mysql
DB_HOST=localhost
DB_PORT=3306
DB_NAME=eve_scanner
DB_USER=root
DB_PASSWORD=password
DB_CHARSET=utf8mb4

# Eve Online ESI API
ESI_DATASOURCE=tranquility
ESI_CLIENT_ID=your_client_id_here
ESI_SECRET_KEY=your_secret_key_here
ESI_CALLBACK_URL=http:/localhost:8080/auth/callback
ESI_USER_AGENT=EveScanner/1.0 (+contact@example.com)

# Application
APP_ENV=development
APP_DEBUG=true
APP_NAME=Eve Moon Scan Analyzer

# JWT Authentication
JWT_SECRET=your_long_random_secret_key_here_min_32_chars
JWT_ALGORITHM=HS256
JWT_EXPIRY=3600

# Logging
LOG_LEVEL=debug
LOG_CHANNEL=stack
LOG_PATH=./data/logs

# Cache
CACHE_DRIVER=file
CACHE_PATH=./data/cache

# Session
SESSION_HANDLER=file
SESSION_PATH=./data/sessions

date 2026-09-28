@@ -1,0 +1,269 @@
+# Eve Moon Scan Analyzer
+
+A modern, RESTful moon scan analyzer for Eve Online. Parses moon survey scans, analyzes material composition, and calculates ISK values based on real-time market data.
+
+**This is a modernized fork of [eve-skylizer](https://github.com/chrRtg/eve-skylizer)**, built with:
+- PHP 8.2+ (Laminas framework)
+- MySQL/PostgreSQL with Doctrine ORM
+- RESTful API (no server-side rendering)
+- Docker support
+- Comprehensive test suite
+
+## Features
+
+- **Moon Scan Parsing**: Paste moon survey scan data; automatically extract moon ID, materials, and quantities
+- **Composition Analysis**: View mineral/goo breakdown by moon, filter by material type
+- **ISK Valuation**: Real-time market pricing via Eve ESI API; calculate total moon resource value
+- **Structure Tracking**: Link refineries and drilling platforms to moons
+- **Export & Reports**: Generate CSV/JSON exports by system, constellation, or player
+- **Eve SSO Authentication**: Login via Eve Online single sign-on
+- **Role-based Access**: Granular permissions for users, moon managers, admins
+
+## Quick Start
+
+### Prerequisites
+- PHP 8.2+
+- Composer
+- MySQL 8.0+ or PostgreSQL 12+
+- Docker & Docker Compose (optional)
+
+### Local Development
+
+```bash
+# Clone the repository
+git clone https://github.com/gimmihoff/eve-moon-scan-analyzer.git
+cd eve-moon-scan-analyzer
+
+# Install dependencies
+composer install
+
+# Copy and configure environment
+cp .env.example .env
+# Edit .env with your database and Eve SSO credentials
+
+# Generate database schema
+php bin/laminas orm:schema-tool:create
+
+# Run the application
+php -S localhost:8080 -t public/ public/index.php
+```
+
+Open http://localhost:8080 in your browser.
+
+### Docker
+
+```bash
+docker-compose up
+```
+
+Access at http://localhost:8080
+
+## Usage
+
+### Submit a Scan
+
+```bash
+curl -X POST http://localhost:8080/api/scans \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "scan_data": "40000001\tTitanium Chromide\t123.456",
+    "scan_type": "moon_survey"
+  }'
+```
+
+### List Moons in a System
+
+```bash
+curl http://localhost:8080/api/systems/30004984/moons \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+### Get Moon Details with Composition
+
+```bash
+curl http://localhost:8080/api/moons/40000001 \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Response:
+```json
+{
+  "moon_id": 40000001,
+  "system_id": 30004984,
+  "system_name": "Jita",
+  "materials": [
+    {
+      "type_id": 16272,
+      "name": "Titanium Chromide",
+      "quantity": 123456.78,
+      "unit_price": 1234.56,
+      "total_value": 152415235.68
+    }
+  ],
+  "total_value_isk": 152415235.68,
+  "last_scan": "2026-09-28T14:30:00Z",
+  "scanned_by": "YourCharacterName"
+}
+```
+
+## Project Structure
+
+```
+src/
+  Application/
+    Controller/        API route handlers
+    Service/           Business logic (scan parsing, pricing)
+    Entity/            Doctrine ORM entities (Moon, Material, Scan)
+    Repository/        Data access layer
+  Infrastructure/
+    Persistence/       Database migrations
+    Config/            Laminas configuration
+  Domain/
+    ScanAnalysis/      Core domain logic (bounded context)
+
+tests/
+  Unit/
+  Integration/
+  Fixtures/           Test data
+
+public/
+  index.php           Entry point
+
+config/
+  modules.config.php
+  autoload/
+
+docker/
+  Dockerfile
+  docker-compose.yml
+```
+
+## API Endpoints
+
+### Scans
+- `POST /api/scans` - Submit a new scan
+- `GET /api/scans` - List scans (with filters)
+- `GET /api/scans/{scanId}` - Get scan details
+
+### Moons
+- `GET /api/moons` - List all moons (with filters)
+- `GET /api/moons/{moonId}` - Get moon composition & value
+- `PATCH /api/moons/{moonId}` - Update moon metadata (name, owner, structure)
+- `DELETE /api/moons/{moonId}` - Archive moon
+
+### Systems
+- `GET /api/systems/{systemId}/moons` - List moons in a system
+- `GET /api/systems/{systemId}/value` - Total ISK value of all moons
+
+### Materials
+- `GET /api/materials` - List all materials found in scans
+- `GET /api/materials/{typeId}/moons` - Find all moons with a specific material
+
+### Pricing
+- `POST /api/prices/update` - Trigger ESI price update
+- `GET /api/prices/{typeId}` - Get current price for a material
+
+### Export
+- `GET /api/exports/moons/csv` - Export moons as CSV
+- `GET /api/exports/moons/json` - Export moons as JSON
+
+## Environment Variables
+
+```bash
+# Database
+DB_DRIVER=pdo_mysql          # or pdo_pgsql
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=eve_scanner
+DB_USER=root
+DB_PASSWORD=secret
+
+# Eve Online ESI API
+ESI_DATASOURCE=tranquility   # or singularity for test server
+ESI_CLIENT_ID=your_client_id
+ESI_SECRET_KEY=your_secret_key
+ESI_CALLBACK_URL=http://localhost:8080/auth/callback
+
+# App
+APP_ENV=development          # or production
+APP_DEBUG=true               # or false
+JWT_SECRET=your_jwt_secret_key_here
+```
+
+## Configuration
+
+See `config/` directory for detailed Laminas configuration.
+
+## Development
+
+### Run Tests
+
+```bash
+php vendor/bin/phpunit
+```
+
+### Code Quality
+
+```bash
+# PHP CodeSniffer
+php vendor/bin/phpcs src/
+
+# PHPStan static analysis
+php vendor/bin/phpstan analyse src/
+```
+
+### Database Migrations
+
+```bash
+# Generate a new migration
+php bin/laminas orm:generate-proxies
+
+# Run migrations
+php bin/laminas orm:schema-tool:update --force
+
+# Rollback
+php bin/laminas orm:schema-tool:drop
+```
+
+## Authentication
+
+The application uses **Eve Single Sign-On (SSO)** via OAuth2. Configure your Eve app at https://developers.eveonline.com.
+
+1. Create an Eve app with scopes: `esi-universe.read_structures.v1`, `esi-markets.read_market_prices.v1`
+2. Set `ESI_CLIENT_ID`, `ESI_SECRET_KEY`, and `ESI_CALLBACK_URL` in `.env`
+3. Users authenticate by visiting `/auth/login`, which redirects to Eve SSO
+
+## Permissions & Roles
+
+- **Admin**: Full system access, user management, price updates
+- **Moon Manager**: Can create/edit/delete moons, export data
+- **Analyst**: Read-only access to moons and scans
+- **Guest**: Public read access (if enabled)
+
+## Contributing
+
+Contributions are welcome! Please:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/my-feature`)
+3. Write tests for new functionality
+4. Submit a pull request
+
+## License
+
+Apache License 2.0 — See [LICENSE](LICENSE) for details.
+
+## Acknowledgments
+
+- [eve-skylizer](https://github.com/chrRtg/eve-skylizer) — Original inspiration and codebase
+- [Laminas Project](https://getlaminas.org/) — Framework
+- [Eve ESI API](https://esi.evetech.net/ui/) — Eve Online data
+- Eve Online community for feedback and test data
+
+## Support
+
+For issues, feature requests, or questions:
+- Open a GitHub issue
+- Discuss in [Eve Online forums](https://forums.eveonline.com)
+- In-game mail to character TBD
+

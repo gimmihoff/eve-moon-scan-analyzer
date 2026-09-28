@@ -1,0 +1,10 @@
+parameters:
+    level: 8
+    paths:
+        - src
+    excludePaths:
+        - vendor
+        - data
+    phpVersion: 80200
+    reportUnmatchedIgnoredErrors: true
+    treatPhpDocTypesAsCertain: false

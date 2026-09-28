@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - APP_ENV=development
+      - APP_DEBUG=true
+      - DB_HOST=mysql
+      - DB_NAME=eve_scanner
+      - DB_USER=eve_user
+      - DB_PASSWORD=eve_password
+    volumes:
+      - .:/app
+    depends_on:
+      - mysql
+    command: php -S 0.0.0.0:8080 -t public/ public/index.php
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=eve_scanner
+      - MYSQL_USER=eve_user
+      - MYSQL_PASSWORD=eve_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

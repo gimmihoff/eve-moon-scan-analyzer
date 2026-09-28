@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<ruleset name="Eve Moon Scan Analyzer">
+    <description>Code quality standards for the project</description>
+
+    <file>src</file>
+    <file>tests</file>
+
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/data/*</exclude-pattern>
+
+    <rule ref="PSR12"/>
+
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120"/>
+        </properties>
+    </rule>
+</ruleset>
