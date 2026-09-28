@@ -26,12 +26,42 @@ return [
                     ],
                 ],
             ],
+            'api.moons' => [
+                'type' => 'Segment',
+                'options' => [
+                    'route' => '/api/moons[/:action[/:id]]',
+                    'constraints' => [
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id' => '\d+',
+                    ],
+                    'defaults' => [
+                        'controller' => \Application\Controller\MoonController::class,
+                        'action' => 'list',
+                    ],
+                ],
+            ],
+            'api.scans' => [
+                'type' => 'Segment',
+                'options' => [
+                    'route' => '/api/scans[/:action[/:id]]',
+                    'constraints' => [
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id' => '\d+',
+                    ],
+                    'defaults' => [
+                        'controller' => \Application\Controller\ScanHistoryController::class,
+                        'action' => 'list',
+                    ],
+                ],
+            ],
         ],
     ],
     'controllers' => [
         'factories' => [
             \Application\Controller\IndexController::class => \Laminas\Mvc\Service\InvokableFactory::class,
             \Application\Controller\ScanController::class => \Application\Controller\Factory\ScanControllerFactory::class,
+            \Application\Controller\MoonController::class => \Application\Controller\Factory\MoonControllerFactory::class,
+            \Application\Controller\ScanHistoryController::class => \Application\Controller\Factory\ScanHistoryControllerFactory::class,
         ],
     ],
     'service_manager' => [
