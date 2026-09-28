@@ -54,6 +54,20 @@ return [
                     ],
                 ],
             ],
+            'api.pricing' => [
+                'type' => 'Segment',
+                'options' => [
+                    'route' => '/api/pricing[/:action[/:type_id]]',
+                    'constraints' => [
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'type_id' => '\d+',
+                    ],
+                    'defaults' => [
+                        'controller' => \Application\Controller\PricingController::class,
+                        'action' => 'update_all',
+                    ],
+                ],
+            ],
         ],
     ],
     'controllers' => [
@@ -62,12 +76,14 @@ return [
             \Application\Controller\ScanController::class => \Application\Controller\Factory\ScanControllerFactory::class,
             \Application\Controller\MoonController::class => \Application\Controller\Factory\MoonControllerFactory::class,
             \Application\Controller\ScanHistoryController::class => \Application\Controller\Factory\ScanHistoryControllerFactory::class,
+            \Application\Controller\PricingController::class => \Application\Controller\Factory\PricingControllerFactory::class,
         ],
     ],
     'service_manager' => [
         'factories' => [
             \Application\Service\ScanAnalysisService::class => \Application\Service\Factory\ScanAnalysisServiceFactory::class,
             \App\Service\ScanPersistenceService::class => \App\Service\Factory\ScanPersistenceServiceFactory::class,
+            \App\Service\MaterialPriceService::class => \App\Service\Factory\MaterialPriceServiceFactory::class,
         ],
     ],
     'doctrine' => [
