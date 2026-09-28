@@ -72,7 +72,7 @@ return [
     ],
     'controllers' => [
         'factories' => [
-            \Application\Controller\IndexController::class => \Laminas\Mvc\Service\InvokableFactory::class,
+            \Application\Controller\IndexController::class => \Application\Controller\Factory\IndexControllerFactory::class,
             \Application\Controller\ScanController::class => \Application\Controller\Factory\ScanControllerFactory::class,
             \Application\Controller\MoonController::class => \Application\Controller\Factory\MoonControllerFactory::class,
             \Application\Controller\ScanHistoryController::class => \Application\Controller\Factory\ScanHistoryControllerFactory::class,
@@ -84,20 +84,6 @@ return [
             \Application\Service\ScanAnalysisService::class => \Application\Service\Factory\ScanAnalysisServiceFactory::class,
             \App\Service\ScanPersistenceService::class => \App\Service\Factory\ScanPersistenceServiceFactory::class,
             \App\Service\MaterialPriceService::class => \App\Service\Factory\MaterialPriceServiceFactory::class,
-        ],
-    ],
-    'doctrine' => [
-        'driver' => [
-            'app_driver' => [
-                'class' => \Doctrine\ORM\Mapping\Driver\AttributeDriver::class,
-                'cache' => 'array',
-                'paths' => [__DIR__ . '/../../src/Application/Entity'],
-            ],
-            'orm_default' => [
-                'drivers' => [
-                    'App\\Entity' => 'app_driver',
-                ],
-            ],
         ],
     ],
     'view_manager' => [

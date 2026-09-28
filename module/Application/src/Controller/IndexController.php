@@ -3,7 +3,6 @@
 namespace Application\Controller;
 
 use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 
 class IndexController extends AbstractActionController
@@ -12,7 +11,7 @@ class IndexController extends AbstractActionController
     {
         return new ViewModel([
             'title' => 'Eve Moon Scan Analyzer',
-            'message' => 'The API is ready for moon scan ingestion and analysis.',
+            'message' => 'Paste a moon survey and analyze the material value.'
         ]);
     }
 }
