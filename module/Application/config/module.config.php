@@ -13,6 +13,19 @@ return [
                     ],
                 ],
             ],
+            'auth' => [
+                'type' => 'Segment',
+                'options' => [
+                    'route' => '/auth[/:action[/]]',
+                    'constraints' => [
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                    ],
+                    'defaults' => [
+                        'controller' => \Application\Controller\AuthController::class,
+                        'action' => 'login',
+                    ],
+                ],
+            ],
             'api' => [
                 'type' => 'Segment',
                 'options' => [
@@ -73,6 +86,7 @@ return [
     'controllers' => [
         'factories' => [
             \Application\Controller\IndexController::class => \Application\Controller\Factory\IndexControllerFactory::class,
+            \Application\Controller\AuthController::class => \Application\Controller\Factory\AuthControllerFactory::class,
             \Application\Controller\ScanController::class => \Application\Controller\Factory\ScanControllerFactory::class,
             \Application\Controller\MoonController::class => \Application\Controller\Factory\MoonControllerFactory::class,
             \Application\Controller\ScanHistoryController::class => \Application\Controller\Factory\ScanHistoryControllerFactory::class,
@@ -81,6 +95,7 @@ return [
     ],
     'service_manager' => [
         'factories' => [
+            \Application\Service\EveAuthService::class => \Application\Service\Factory\EveAuthServiceFactory::class,
             \Application\Service\ScanAnalysisService::class => \Application\Service\Factory\ScanAnalysisServiceFactory::class,
             \App\Service\ScanPersistenceService::class => \App\Service\Factory\ScanPersistenceServiceFactory::class,
             \App\Service\MaterialPriceService::class => \App\Service\Factory\MaterialPriceServiceFactory::class,
