@@ -2,15 +2,7 @@
 
 return [
     'modules' => [
-        'Laminas\Router',
-        'Laminas\Validator',
-        'Laminas\Session',
-        'Laminas\Authentication',
-        'Laminas\PermissionsRbac',
-        'Laminas\Log',
-        'Laminas\Cache',
-        'DoctrineModule',
-        'DoctrineORMModule',
+        'Application',
     ],
     'module_listener_options' => [
         'module_paths' => [
